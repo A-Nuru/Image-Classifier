@@ -1,13 +1,13 @@
 
-# Image Classifier
+# **Image Classifier**
 
 
 ## Table of Contents
-1. Installation
-2. Project Motivation
-3. File Descriptions
-4. Results
-5. Acknowledgements
+1. [Installation](https://github.com/A-Nuru/Image-Classifier#Installation)
+2. [Project Motivation](https://github.com/A-Nuru/Image-Classifier#Project-Motivation)
+3. [File Descriptions](https://github.com/A-Nuru/Image-Classifier#File-Descriptions)
+4. [Results](https://github.com/A-Nuru/Image-Classifier#Results)
+5. [Acknowledgements](https://github.com/A-Nuru/Image-Classifier#Licensing-Authors-Acknowledgements)
 
 ## Installation
 The libraries employed in this project to run the code are Anaconda distribution of Python 3.*, Numpy, Pandas, MatplotLib, Pytorch, PIL and json. If you have a lower python version, you can consider an upgrade using pip or conda.
@@ -21,6 +21,11 @@ After the project completion, we'll have an application that can be trained on a
 
 ## File Descriptions
 The files associated with this work include
-* The jupyter ipython notebook containing 
+* The jupyter ipython notebook 
 * The html file generated from the jupyter ipython notebook
+* The training python file and the predict python file with which this application can be run as a command line application
+## Results
+An application which outputs the name of a flower image fed into it is produces. Checkout the files [here.](https://github.com/A-Nuru/Image-Classifier)
+
+## Licensing, Authors, Acknowledgements
 
