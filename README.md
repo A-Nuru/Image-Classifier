@@ -24,8 +24,27 @@ The files associated with this work include
 * The jupyter ipython notebook 
 * The html file generated from the jupyter ipython notebook
 * The training python file and the predict python file with which this application can be run as a command line application
-## Results
-An application which outputs the name of a flower image fed into it is produces. Checkout the files [here.](https://github.com/A-Nuru/Image-Classifier)
+## Instructions
+1. Train a new network on a data set with train.py
 
-## Licensing, Authors, Acknowledgements
+* Basic usage: python train.py data_directory
+* Prints out training loss, validation loss, and validation accuracy as the network trains
+* Options:
+Set directory to save checkpoints: python train.py data_dir --save_dir save_directory
+Choose architecture: python train.py data_dir --arch "vgg13"
+Set hyperparameters: python train.py data_dir --learning_rate 0.01 --hidden_units 512 --epochs 20
+Use GPU for training: python train.py data_dir --gpu
+2. Predict flower name from an image with predict.py along with the probability of that name. That is, you'll pass in a single image /path/to/image and return the flower name and class probability.
+
+* Basic usage: python predict.py /path/to/image checkpoint
+* Options:
+Return top KK most likely classes: python predict.py input checkpoint --top_k 3
+Use a mapping of categories to real names: python predict.py input checkpoint --category_names cat_to_name.json
+Use GPU for inference: python predict.py input checkpoint --gpu
+The best way to get the command line input into the scripts is with the argparse module in the standard library.
+## Results
+An application which outputs the name of a flower image fed into it is produced. Checkout the files [here.](https://github.com/A-Nuru/Image-Classifier/blob/master/Image%20Classifier%20Project.ipynb)
+
+## Licensing
+The license of this project can be found [here](https://github.com/A-Nuru/Image-Classifier/License)
 
