@@ -6,11 +6,12 @@
 1. [Installation](https://github.com/A-Nuru/Image-Classifier#Installation)
 2. [Project Motivation](https://github.com/A-Nuru/Image-Classifier#Project-Motivation)
 3. [File Descriptions](https://github.com/A-Nuru/Image-Classifier#File-Descriptions)
-4. [Results](https://github.com/A-Nuru/Image-Classifier#Results)
-5. [Licensing](https://github.com/A-Nuru/Image-Classifier#Licensing)
+4. [Instructions](https://github.com/A-Nuru/Image-Classifier#Instructions)
+5. [Results](https://github.com/A-Nuru/Image-Classifier#Results)
+6. [Licensing](https://github.com/A-Nuru/Image-Classifier#Licensing)
 
 ## Installation
-The libraries employed in this project to run the code are Anaconda distribution of Python 3.*, Numpy, Pandas, MatplotLib, Pytorch, PIL and json. If you have a lower python version, you can consider an upgrade using pip or conda.
+The libraries employed in this project to run the code are Anaconda distribution of Python 3.*, Numpy, Pandas, MatplotLib, Pytorch, PIL and json. If you have a lower python version, you can consider an upgrade using pip or conda. You will also need to have software installed to run and execute an [iPython Notebook](http://ipython.org/notebook.html)
 
 ## Project Motivation
 Going forward, AI algorithms will be incorporated into more and more everyday applications. For example, you might want to include an image classifier in a smartphone app. To do this, you'd use a deep learning model trained on hundreds of thousands of images as part of the overall application architecture. A large part of software development in the future will be using these types of models as common parts of applications.
@@ -24,7 +25,8 @@ The files associated with this work include
 * The jupyter ipython notebook 
 * The html file generated from the jupyter ipython notebook
 * The training python file and the predict python file with which this application can be run as a command line application
-## Instructions working with command line
+## Instructions 
+While working with command line:
 1. Train a new network on a data set with train.py
 
 * Basic usage: ```python train.py data_directory```
