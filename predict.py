@@ -1,21 +1,29 @@
 import torch
 import argparse
 import PIL
-from torchvision import models
-from torch import optim, nn
 import numpy as np
 import json
+from torchvision import models
+from torch import optim, nn
 from collections import OrderedDict
 
-# arg_parse() parses keyword arguments from the command line
+
 def arg_parse():
-    # defining a parser object - paser
+    
+    '''
+    Arguments: Nothing
+    
+    Returns:   args - the data  from the specified options (added arguments) gotten by using the method  'arg_parse()' 
+                      on the paser object after adding arguments.
+                      
+                      The argparse module is the command line parsing module
+    '''
+    
     paser = argparse.ArgumentParser(description='training image classifier')
 
     # adding arguments to the paser(parser object)
     paser.add_argument('--gpu', type=bool, default='True', help='True: gpu, False: cpu')
     paser.add_argument('--image_path', type=str, default='flowers/test/1/image_06743.jpg', help='stored image path')
-    # checkpoint = saving directory
     paser.add_argument('--checkpoint', type=str, default='checkpoint.pth', help='save trained model to a file')
     paser.add_argument('--top_k', type=int, default= 5, help='display top class probabilities')
     paser.add_argument('--cat_to_name_json', type=str, default='cat_to_name.json', help='mapper path from category to name')
@@ -25,20 +33,15 @@ def arg_parse():
     return args
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Loading model checkpoint
 def load_checkpoint(checkpoint_pth):
     
     '''
     Arguments: The path of the checkpoint file
     
-    Returns:   The Neural Netowrk with all hyperparameters, weights and biases
+    Returns:   The model with all saved hyperparameters, weights and biases
     '''
     
     checkpoint = torch.load(checkpoint_pth)
-    
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Getting the model architecture
     if checkpoint['arch'] == 'alexnet':
@@ -50,7 +53,7 @@ def load_checkpoint(checkpoint_pth):
     else:
         print("Model arch not found.")
     
-    # Freezing the only features parameter of the model 
+    # Freezing only the features parameter of the model 
     for param in model.parameters():
         param.requires_grad = False
 
@@ -62,10 +65,7 @@ def load_checkpoint(checkpoint_pth):
                                                     ('output', nn.LogSoftmax(dim = 1))]))
     
     optimizer = optim.Adam(model.classifier.parameters(), lr = 0.001)
-
-    model.to(device);
-        
-    #model=checkpoint['model']    
+    
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
     model.class_to_idx=checkpoint['class_to_idx']
@@ -78,7 +78,6 @@ def load_checkpoint(checkpoint_pth):
     return model
 
 
-# TODO: Process a PIL image for use in a PyTorch model (without using tran)
 def process_image(image_path):
     
     '''
@@ -86,43 +85,32 @@ def process_image(image_path):
     
     Returns: The image as a tensor
     
-            This function opens the image using the PIL package, applies the  necessary 
+            This function process a PIL image for use in a PyTorch model (without using transformations) 
+            i.e., opens the image using the PIL package, applies the  necessary 
             transformations and returns the image as a tensor ready to be fed to the network
     '''
     
     image = PIL.Image.open(image_path)
     
-    #RESIZING
-    
-    print(image)
-    
+    # RESIZING 
     size = 224
-    width = image.size[0] # 500
-    height = image.size[1] # 601
-    
-    print(width)
-    print(height)
-    
+    width = image.size[0] 
+    height = image.size[1] 
     if width < height:
-        width = int(size) # =224
-        height = int(max(height * size / width, 1)) # =269
-        
+        width = int(size) 
+        height = int(max(height * size / width, 1)) 
     else:
         width = int(max(width * size / height, 1))
         height = int(size)
         
     resized_image = image.resize((width, height))
     
-    print(resized_image)
-    
     # CROPPING    
-    x1 = (width - size) / 2  # 224 - 224 = 0
-    y1 = (height - size) / 2 # 269 - 224 = 45
-    x2 = x1 + size           # 224
-    y2 = y1 + size          # 269
+    x1 = (width - size) / 2  
+    y1 = (height - size) / 2 
+    x2 = x1 + size          
+    y2 = y1 + size         
     cropped_image = image.crop((x1, y1, x2, y2))
-    
-    print(cropped_image)
     
     np_image = np.array(cropped_image) / 255.
     mean = np.array([0.485, 0.456, 0.406])
@@ -132,19 +120,15 @@ def process_image(image_path):
     
     return np_image_arr
 
-img_pth1 = 'flowers/test/1/image_06743.jpg'
-img_pth2 = 'flowers/test/5/image_05159.jpg'
 
-
-# predict function
 def predict_image(image_path, model, cat_to_name, top_k):
     
-     '''
+    '''
     Arguments: The path to the image, the model, the number of predictions and mapping from category to name
     
     Returns: The top index, top probabilities as array, index to class mapping, top index array, top classes and top classes names
     '''
-    
+        
     with torch.no_grad():
         model.eval()
         model.to(device) # put model on gpu
@@ -173,21 +157,7 @@ def predict_image(image_path, model, cat_to_name, top_k):
     
 def main():
     args=arg_parse()
-    
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #model.to(device);
-    
-    is_gpu = args.gpu
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cpu")
-    if is_gpu and use_cuda:
-        device = torch.device("cuda:0")
-        print(f"Device set to {device}")
-
-    else:
-        device = torch.device("cpu")
-        print(f"Device set to {device}")
-                
+                      
     # mapping index to top_classes and top classes names
     with open(args.cat_to_name_json, 'r') as f:
             cat_to_name = json.load(f)
@@ -197,9 +167,13 @@ def main():
     image = process_image(args.image_path)
        
     idx_to_class,top_idx_arr, top_idx, top_probs_arr, top_classes, top_classes_names = predict_image(args.image_path, model, cat_to_name, args.top_k)
-    #args, args.image_path, model, class_to_idx, idx_to_class, cat_to_name, topk=args.topk
+   
     print(top_probs_arr, top_classes_names)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+      
+    
 if __name__ == '__main__':
     main()
-
+    print('done')
+    
