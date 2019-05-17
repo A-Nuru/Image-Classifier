@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn
@@ -50,9 +49,9 @@ def process_data(data_dir):
                                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
     # Load the datasets with ImageFolder
-    image_datasets_train = datasets.ImageFolder(data_dir + '/train', transform = data_transforms_train)
-    image_datasets_valid = datasets.ImageFolder(data_dir + '/valid', transform = data_transforms_valid)
-    image_datasets_test = datasets.ImageFolder(data_dir + '/test', transform = data_transforms_test)
+    image_datasets_train = datasets.ImageFolder(train_dir, transform = data_transforms_train)
+    image_datasets_valid = datasets.ImageFolder(valid_dir , transform = data_transforms_valid)
+    image_datasets_test = datasets.ImageFolder(test_dir, transform = data_transforms_test)
 
     # Using the image datasets and the trainforms, define the dataloaders
     dataloaders_train =  torch.utils.data.DataLoader(image_datasets_train , batch_size = 32, shuffle = True)
@@ -62,8 +61,6 @@ def process_data(data_dir):
     return dataloaders_train, dataloaders_valid, dataloaders_test, image_datasets_train, image_datasets_valid, image_datasets_test
 
     
-
-# Load pretrained_network
 def pretrained_model(arch):
     
     '''
@@ -107,15 +104,6 @@ def classifier(model, hidden_units):
     model.classifier = classifier
         
     return model.classifier
-
-'''def device():
-    use_gpu = torch.cuda.is_available()
-    if args.gpu:
-            if use_gpu:
-                model = model.cuda()
-                print ("Using GPU: "+ str(use_gpu))
-            else:
-                print("Using CPU because GPU is not available")'''
 
 
 def train_model(epochs, dataloaders_train, dataloaders_valid, device, model, optimizer, criterion):
@@ -185,7 +173,6 @@ def train_model(epochs, dataloaders_train, dataloaders_valid, device, model, opt
     return model
 
 
-# testing network
 def test_network(model, dataloaders_test, device, criterion):
     
     '''
@@ -193,7 +180,7 @@ def test_network(model, dataloaders_test, device, criterion):
     
     Returns: Nothing
     
-             This function checks the performance of the test data on the trained model
+             This function tests the performance of the test data on the trained model
     '''
     
     test_loss = 0
@@ -212,8 +199,6 @@ def test_network(model, dataloaders_test, device, criterion):
         print(f"Test accuracy: {accuracy/len(dataloaders_test):.3f}")
     
 
-
-# saving model checkpoint
 def save_checkpoint(model, image_datasets_train, checkpoint, arch, epochs):
     
     '''
@@ -255,7 +240,6 @@ if __name__ == '__main__':
     args = paser.parse_args()
    
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #model.to(device);
     
     is_gpu = args.gpu
     use_cuda = torch.cuda.is_available()
