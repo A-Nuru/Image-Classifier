@@ -1,7 +1,3 @@
-
-    # Imports here
-#%matplotlib inline
-#%config InlineBackend.figure_format = 'retina'
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -17,13 +13,26 @@ import json
 from collections import OrderedDict
 
 def process_data(data_dir):
+    
+    '''
+    Arguments : The datas' path
+    
+    Returns :   The training, validation, and testing image datasets 
+                and 
+                the loaders for the train, validation and test datasets.
+                
+                This function receives the location of the image files, applies the necessery 
+                transformations (rotations,flips,normalizations and crops) and converts the images 
+                to tensor in order to be able to be fed into the neural network
+    '''
+    
     data_dir = 'flowers'
     train_dir = data_dir + '/train'
     valid_dir = data_dir + '/valid'
     test_dir = data_dir + '/test'
 
 
-    # TODO: Define your transforms for the training, validation, and testing sets
+    # Define your transforms for the training, validation, and testing sets
     data_transforms_train = transforms.Compose([transforms.RandomResizedCrop(224),
                                                   transforms.RandomRotation(30),
                                                   transforms.RandomHorizontalFlip(),
@@ -40,12 +49,12 @@ def process_data(data_dir):
                                                 transforms.ToTensor(),
                                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-    # TODO: Load the datasets with ImageFolder
+    # Load the datasets with ImageFolder
     image_datasets_train = datasets.ImageFolder(data_dir + '/train', transform = data_transforms_train)
     image_datasets_valid = datasets.ImageFolder(data_dir + '/valid', transform = data_transforms_valid)
     image_datasets_test = datasets.ImageFolder(data_dir + '/test', transform = data_transforms_test)
 
-    # TODO: Using the image datasets and the trainforms, define the dataloaders
+    # Using the image datasets and the trainforms, define the dataloaders
     dataloaders_train =  torch.utils.data.DataLoader(image_datasets_train , batch_size = 32, shuffle = True)
     dataloaders_valid =  torch.utils.data.DataLoader(image_datasets_valid , batch_size = 32, shuffle = True)
     dataloaders_test =  torch.utils.data.DataLoader(image_datasets_test , batch_size = 32, shuffle = True)
@@ -56,6 +65,13 @@ def process_data(data_dir):
 
 # Load pretrained_network
 def pretrained_model(arch):
+    
+    '''
+    Arguments: The architecture for the network (alexnet,squeezenet1_0,vgg16)
+    
+    Returns:   The pre-trained model
+    '''
+    
     if arch == "vgg16":
         model = models.vgg16(pretrained=True)
         print('Using vgg16')
@@ -69,21 +85,28 @@ def pretrained_model(arch):
     return model
         
 def classifier(model, hidden_units):
+    
+    '''
+    Arguments: The pre-trained model and the number of hidden unit nodes
+    
+    Returns:   Classifier
+               A new classifier is contsructed. The pre-trained classifier is replaced by the new classifier 
+    '''
+    
     if hidden_units == None:
         hidden_units = 512
     input = model.classifier[0].in_features
-    
-    
+        
     classifier = nn.Sequential(OrderedDict([('fc1', nn.Linear(input, hidden_units)),
-                                ('relu', nn.ReLU()),
-                                ('drop', nn.Dropout(p = 0.2)),
-                                ('fc2', nn.Linear(hidden_units, 102)),
-                                
-                                ('output', nn.LogSoftmax(dim = 1))]))
+                                            ('relu', nn.ReLU()),
+                                            ('drop', nn.Dropout(p = 0.2)),
+                                            ('fc2', nn.Linear(hidden_units, 102)),
+
+                                            ('output', nn.LogSoftmax(dim = 1))]))
     
     model.classifier = classifier
         
-    return classifier, model.classifier
+    return model.classifier
 
 '''def device():
     use_gpu = torch.cuda.is_available()
@@ -94,11 +117,20 @@ def classifier(model, hidden_units):
             else:
                 print("Using CPU because GPU is not available")'''
 
-# Training Network(model) with the training dataset
-
-#for i in keep_awake(range(1)):
 
 def train_model(epochs, dataloaders_train, dataloaders_valid, device, model, optimizer, criterion):
+    
+    '''
+     Arguments: The model, the criterion, the optimizer, the number of epochs, train and vaidations datasets, 
+                and device (whether to use a gpu or not)
+    
+    Returns: Trained model
+    
+    This function trains the model over a certain number of epochs and displays the training,validation
+    and accuracy every "print_every" step using cuda if specified. The training method is specified by the 
+    criterion and the optimizer which are NLLLoss and Adam respectively
+    '''
+    
     epochs = 10
     running_loss = 0
     print_every = 100
@@ -156,6 +188,14 @@ def train_model(epochs, dataloaders_train, dataloaders_valid, device, model, opt
 # testing network
 def test_network(model, dataloaders_test, device, criterion):
     
+    '''
+    Arguments: The model, testing dataloaders, device and loss criterion
+    
+    Returns: Nothing
+    
+             This function checks the performance of the test data on the trained model
+    '''
+    
     test_loss = 0
     accuracy = 0
     model.eval()
@@ -175,8 +215,19 @@ def test_network(model, dataloaders_test, device, criterion):
 
 # saving model checkpoint
 def save_checkpoint(model, image_datasets_train, checkpoint, arch, epochs):
+    
+    '''
+    Arguments: The model, model architecture, training image dataset, checkpoint (saving path),
+               and the hyperparameters (epochs and learning rate) of the network.
+               
+    Returns:   Saved model in the checkpoint directory.
+    
+               This function saves the model at a specified by the user path
+    '''
+    
     # mapping classes to indices
     model.class_to_idx = image_datasets_train.class_to_idx
+    
     checkpoint = {'arch': arch,
                 'classifier': model.classifier,
                 'state_dict': model.state_dict(),
@@ -226,7 +277,7 @@ if __name__ == '__main__':
     for param in model.parameters():
         param.requires_grad = False    
     
-    classsifier, model.classifier = classifier(model, args.hidden_units)
+    model.classifier = classifier(model, args.hidden_units)
     
     criterion = nn.NLLLoss()
     optimizer = optim.Adam(model.classifier.parameters(), lr = args.lr)
