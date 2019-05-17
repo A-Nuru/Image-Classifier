@@ -29,6 +29,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Loading model checkpoint
 def load_checkpoint(checkpoint_pth):
+    
+    '''
+    Arguments: The path of the checkpoint file
+    
+    Returns:   The Neural Netowrk with all hyperparameters, weights and biases
+    '''
+    
     checkpoint = torch.load(checkpoint_pth)
     
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,12 +73,23 @@ def load_checkpoint(checkpoint_pth):
     epochs=checkpoint['epochs']
     learning_rate = checkpoint['lr']
         
-    #model.eval()
+    model.eval()
+    
     return model
 
 
 # TODO: Process a PIL image for use in a PyTorch model (without using tran)
 def process_image(image_path):
+    
+    '''
+    Arguments: The image's path
+    
+    Returns: The image as a tensor
+    
+            This function opens the image using the PIL package, applies the  necessary 
+            transformations and returns the image as a tensor ready to be fed to the network
+    '''
+    
     image = PIL.Image.open(image_path)
     
     #RESIZING
@@ -120,6 +138,13 @@ img_pth2 = 'flowers/test/5/image_05159.jpg'
 
 # predict function
 def predict_image(image_path, model, cat_to_name, top_k):
+    
+     '''
+    Arguments: The path to the image, the model, the number of predictions and mapping from category to name
+    
+    Returns: The top index, top probabilities as array, index to class mapping, top index array, top classes and top classes names
+    '''
+    
     with torch.no_grad():
         model.eval()
         model.to(device) # put model on gpu
@@ -127,21 +152,17 @@ def predict_image(image_path, model, cat_to_name, top_k):
         image = torch.FloatTensor(image)
         image = image.unsqueeze(0)
         image = image.to(device) # put input image on GPU
-        
-        
+                
         output = model(image)
         ps = torch.exp(output)
-        #index = output.data.cpu().numpy().argmax()
-
         top_probs, top_idx = ps.topk(top_k, dim = 1)
         
-         # convert from index to class        
+        # convert from index to class        
         idx_to_class = {value: key for key, value in model.class_to_idx.items()}
       
         # converting top_probs, top_idx to list
-        top_probs_arr = np.array(top_probs)[0] # top_probs_arr.detach().numpy().tolist()[0] 
-        top_idx_arr = np.array(top_idx)[0]  # top_idx.data.numpy()[0].tolist() / top_idx.detach().numpy().tolist()[0]
-
+        top_probs_arr = np.array(top_probs)[0] 
+        top_idx_arr = np.array(top_idx)[0]  
         
         top_classes = [idx_to_class[i] for i in top_idx_arr]
         top_classes_names = [cat_to_name[str(index)] for index in top_classes]
